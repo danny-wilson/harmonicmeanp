@@ -1,0 +1,92 @@
+library(FMStable)
+?pLandau
+?pEstable
+pharmonicmeanp = Vectorize(function(x, L, log=FALSE, lower.tail=TRUE) {#
+	return(pLandau(1/x, mu=log(L)+1+psigamma(1)-log(2/pi), sigma=pi/2, log=log, lower.tail=lower.tail))#
+})#
+pLandau = Vectorize(function(x,mu=log(pi/2),sigma=pi/2,log=FALSE,lower.tail=TRUE) {#
+	param = setParam(alpha=1, location=mu, logscale=log(sigma), pm=0)#
+	return(pEstable(x,param,log=log,lower.tail=lower.tail))#
+})
+pharmonicmeanp(0.01,10,log=FALSE,lower.tail=TRUE)
+pharmonicmeanp(0.01,10,log=FALSE,lower.tail=FALSE)
+pharmonicmeanp = Vectorize(function(x, L, log=FALSE, lower.tail=TRUE) {#
+	return(pLandau(1/x, mu=log(L)+1+psigamma(1)-log(2/pi), sigma=pi/2, log=log, lower.tail=!lower.tail))#
+})#
+pLandau = Vectorize(function(x,mu=log(pi/2),sigma=pi/2,log=FALSE,lower.tail=TRUE) {#
+	param = setParam(alpha=1, location=mu, logscale=log(sigma), pm=0)#
+	return(pEstable(x,param,log=log,lower.tail=lower.tail))#
+})
+library(FMStable)#
+hmp.stat = function (p, w = NULL) {#
+	p = as.numeric(p)#
+	if (is.null(w)) return(c(hmp.stat = 1/mean(1/p)))#
+	return(c(hmp.stat = sum(w)/sum(w/p)))#
+}#
+p.hmp = function (p, w = NULL) {#
+	if(length(p)==0) return(NA)#
+	HMP = hmp.stat(p, w)#
+	O.874 = 1 + digamma(1) - log(2/pi)#
+	return(c(p.hmp = pEstable(1/HMP, setParam(alpha = 1, location = (log(length(p)) + O.874),#
+	logscale = log(pi/2), pm = 0), lower.tail = FALSE)))#
+}#
+mamml.stat = function(R, w = NULL) {#
+  R = as.numeric(R)#
+  if(any(R<1)) stop("Maximized likelihood ratios cannot be less than one")#
+  if(is.null(w)) return(c("mamml.stat"=mean(R)))#
+  w = w/sum(w)#
+  return(c("mamml.stat"=sum(w*R)))#
+}#
+p.mamml = function(R, nu, w = NULL) {#
+  if(length(nu)!=1 & length(nu)!=length(R)) stop("Degrees of freedom (nu) must have length one or length of R")#
+  Rbar = mamml.stat(R, w)#
+  nu = as.numeric(nu)#
+  if(any(nu<=0)) stop("Degrees of freedom (nu) must be positive")#
+  nu.max = max(nu)#
+  if(nu.max<2) {#
+    c = pgamma(log(Rbar),nu.max/2,1,lower.tail=FALSE)*Rbar#
+  } else {#
+    c = pgamma(log(length(R)*Rbar),nu.max/2,1,lower.tail=FALSE)*length(R)*Rbar#
+  }#
+  O.874 = 1+digamma(1)-log(2/pi)#
+  return(c("p.mamml"=pEstable(Rbar,setParam(alpha=1,location=c*(log(length(R))+O.874),logscale=log(pi/2*c),pm=0),lower.tail=FALSE)))#
+}#
+pharmonicmeanp = Vectorize(function(x, L, log=FALSE, lower.tail=TRUE) {#
+	return(pLandau(1/x, mu=log(L)+1+psigamma(1)-log(2/pi), sigma=pi/2, log=log, lower.tail=!lower.tail))#
+})#
+pLandau = Vectorize(function(x,mu=log(pi/2),sigma=pi/2,log=FALSE,lower.tail=TRUE) {#
+	param = setParam(alpha=1, location=mu, logscale=log(sigma), pm=0)#
+	return(pEstable(x,param,log=log,lower.tail=lower.tail))#
+})
+p = rbeta(1000,1/1.5,1)#
+min(p.adjust(p,"bonferroni"))#
+min(p.adjust(p,"BH"))#
+x = hmp.stat(p)#
+pharmonicmeanp(x,length(p))#
+p.mamml(1/p,2)
+p.hmp(p)
+?pEstable
+# For detailed examples see the harmonicmeanp package vignette at#
+# https://cran.r-project.org/package=harmonicmeanp#
+# Example: simulate from a non-uniform distribution mildly enriched for small \emph{p}-values. #
+# Compare the significance of the combined p-value for Bonferroni, Benjamini-Hochberg (i.e. Simes), #
+# HMP and (equivalently) MAMML with 2 degrees of freedom.#
+p = rbeta(1000,1/1.5,1)#
+min(p.adjust(p,"bonferroni"))#
+min(p.adjust(p,"BH"))#
+x = hmp.stat(p)#
+pLandau(x,log(length(p))+0.874,pi/2)#
+p.hmp(p)#
+p.mamml(1/p,2)
+pLandau(1/x,log(length(p))+0.874,pi/2)
+pLandau(1/x,log(length(p))+0.874,pi/2,lower.tail=FALSE)
+pLandau(1/x,log(length(p))+(1 + digamma(1) - log(2/pi)),pi/2,lower.tail=FALSE)
+install.packages("~/Documents/R/hmp/harmonicmeanp_1.0.tar.gz")
+library(harmonicmeanp)
+pLandau
+ls()
+rm(ls())
+rm(list=ls())
+pLandau
+library(harmonicmeanp)
+pLandau

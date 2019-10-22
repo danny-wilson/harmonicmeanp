@@ -23,9 +23,9 @@ p.hmp = function(p, w = NULL, L = NULL, w.sum.tolerance = 1e-6, multilevel = TRU
     HMP = hmp.stat(p, w)
     O.874 = 1 + digamma(1) - log(2/pi)
     if(multilevel) {
-        return(c(p.hmp = w.sum*pEstable(w.sum/HMP, setParam(alpha = 1, location = (log(L) + O.874), logscale = log(pi/2), pm = 0), lower.tail = FALSE)))
+        return(p.hmp = c(max(HMP,w.sum*pEstable(w.sum/HMP, setParam(alpha = 1, location = (log(L) + O.874), logscale = log(pi/2), pm = 0), lower.tail = FALSE))))
     }
-    return(c(p.hmp = pEstable(1/HMP, setParam(alpha = 1, location = (log(length(p)) + O.874), logscale = log(pi/2), pm = 0), lower.tail = FALSE)))
+    return(c(p.hmp = max(HMP,pEstable(1/HMP, setParam(alpha = 1, location = (log(length(p)) + O.874), logscale = log(pi/2), pm = 0), lower.tail = FALSE))))
 }
 mamml.stat = function(R, w = NULL) {
     R = as.numeric(R)

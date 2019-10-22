@@ -23,7 +23,7 @@ p.hmp = function(p, w = NULL, L = NULL, w.sum.tolerance = 1e-6, multilevel = TRU
     HMP = hmp.stat(p, w)
     O.874 = 1 + digamma(1) - log(2/pi)
     if(multilevel) {
-        return(p.hmp = c(max(HMP,w.sum*pEstable(w.sum/HMP, setParam(alpha = 1, location = (log(L) + O.874), logscale = log(pi/2), pm = 0), lower.tail = FALSE))))
+        return(c(p.hmp = max(HMP,w.sum*pEstable(w.sum/HMP, setParam(alpha = 1, location = (log(L) + O.874), logscale = log(pi/2), pm = 0), lower.tail = FALSE))))
     }
     return(c(p.hmp = max(HMP,pEstable(1/HMP, setParam(alpha = 1, location = (log(length(p)) + O.874), logscale = log(pi/2), pm = 0), lower.tail = FALSE))))
 }
@@ -96,4 +96,23 @@ qmamml = Vectorize(function(p, L, df, log=FALSE, lower.tail=TRUE, xmin=1+1e-12, 
 rmamml = Vectorize(function(n, L, df) {
     return(qmamml(runif(n),L,df))
 })
-
+p.Simes = function(p, w = NULL, L = NULL, w.sum.tolerance = 1e-6, multilevel = TRUE) {
+  if(is.null(L) & multilevel) {
+    warning("L not specified: for multilevel testing set L to the total number of individual p-values")
+    L = length(p)
+  }
+  if(length(p) == 0) return(NA)
+  if(length(p) > L) stop("The number of p-values cannot exceed L")
+  if(is.null(w)) {
+    w = rep(1/L,length(p))
+  } else {
+    if(any(w<0)) stop("No weights can be negative")
+    if(length(w)!=length(p)) stop("When specified, length of w must equal length of p")
+  }
+  w.sum = sum(w)
+  if(w.sum>1+w.sum.tolerance) {
+    stop("Weights cannot exceed 1")
+  }
+  pstar = p/w
+  return(c(p.Simes = min(sort(pstar)/(1:length(p)))))
+}
